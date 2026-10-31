@@ -32,7 +32,7 @@ public class MoveResult
     public PlayerId CurrentPlayer { get; set; }
 
     /// <summary>
-    /// Список координат фишек противника, которые были захвачены ("съедены") за этот ход.
+    /// Список координат фишек противника, которые были захвачены за этот ход.
     /// UI использует этот список для красивого уведомления или подсветки удаленных фишек.
     /// </summary>
     public IReadOnlyList<BoardCoordinate> CapturedPieces { get; set; } = Array.Empty<BoardCoordinate>();
