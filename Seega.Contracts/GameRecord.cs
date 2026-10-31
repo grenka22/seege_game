@@ -1,11 +1,11 @@
+using System;
+
 namespace Seega.Contracts;
 
-/// <summary>
-/// Запись о завершенной игре для таблицы рекордов
-/// </summary>
 public record GameRecord(
-    string WinnerName,
-    string LoserName,
+    string Player1Name,
+    string Player2Name,
+    string? WinnerName,
     int Score,
     int TotalTurns,
     DateTime CompletedAt

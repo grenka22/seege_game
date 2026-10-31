@@ -1,11 +1,10 @@
+using System;
+using System.Collections.Generic;
+
 namespace Seega.Contracts;
 
-/// <summary>
-/// Полный снимок состояния игры
-/// </summary>
 public class GameState
 {
-    // Одномерный массив из 25 клеток для System.Text.Json
     public PlayerId[] Board { get; set; } = new PlayerId[25];
 
     public GamePhase Phase { get; set; } = GamePhase.Placement;
@@ -20,23 +19,18 @@ public class GameState
     public int Player1PiecesOnBoard { get; set; } = 0;
     public int Player2PiecesOnBoard { get; set; } = 0;
 
-    // 1 или 2: первая или вторая фишка текущего игрока ставится
     public int PlacementSubTurn { get; set; } = 1;
-
     public int TurnNumber { get; set; } = 1;
 
-    // Координаты фишки, сделавшей захват (для комбо)
     public BoardCoordinate? ComboPiecePosition { get; set; }
-
     public PlayerId? Winner { get; set; }
+    public List<string> MoveHistory { get; set; } = new();
 
-    /// <summary>
-    /// Глубокое клонирование
-    /// </summary>
     public GameState Clone()
     {
         var clone = (GameState)this.MemberwiseClone();
         clone.Board = (PlayerId[])this.Board.Clone();
+        clone.MoveHistory = new List<string>(this.MoveHistory); // Защита истории от перезаписи
         return clone;
     }
 
