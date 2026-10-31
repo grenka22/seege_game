@@ -22,6 +22,30 @@ public class GameManager
         };
     }
 
+    // Заглушка для фазы расстановки
+    public MoveResult PlacePiece(BoardCoordinate target)
+    {
+        return MoveResult.Fail(MoveErrorReason.None, _state);
+    }
+
+    // Заглушка для фазы движения
+    public MoveResult MakeMove(BoardCoordinate from, BoardCoordinate to)
+    {
+        return MoveResult.Fail(MoveErrorReason.None, _state);
+    }
+
+    // Заглушка для пропуска хода при блокаде или завершения комбо
+    public MoveResult PassTurn()
+    {
+        return MoveResult.Fail(MoveErrorReason.None, _state);
+    }
+
+    // Заглушка для отмены хода
+    public bool Undo()
+    {
+        return false;
+    }
+
     public GameState GetCurrentState()
     {
         _state.Board = _board.GetRawBoard();
