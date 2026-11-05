@@ -1,6 +1,5 @@
-//рисуем доску 5х5 и шапку с информацией?
+//рисуем доску 5х5 и шапку с информацией
 using System;
-using System.Reflection.Metadata.Ecma335;
 using Seega.Presentation.Contracts;
 
 namespace Seega.Presentation
@@ -23,8 +22,8 @@ namespace Seega.Presentation
             Console.WriteLine($"{state.Player2Name} (O): {p2Count} фишек\n");
 
             // рисуем доску
-            Console.WriteLine("    1 2 3 4 5");
-            Console.WriteLine("  +-----------+");
+            Console.WriteLine("    1   2   3   4   5");
+            Console.WriteLine("  +-------------------+");;
             
             for (int row = 0; row < 5; row++)
             {
@@ -34,25 +33,22 @@ namespace Seega.Presentation
                     Console.Write(GetCellSymbol(state.Board[row, col]) + " ");
                 }
                 Console.WriteLine("|");
+                 Console.WriteLine("  +-----------+\n");
             }
-            Console.WriteLine("  +-----------+\n");
+            Console.WriteLine();
         }
 
-        private string GetCellSymbol(PlayerId cell)
-        {
-            return cell switch
-            {
-                PlayerId.Player1 => "X",
-                PlayerId.Player2 => "O",
-                _ => "."
-            };
-        }
         private int CountChips(GameState state, PlayerId player)
         {
             int count = 0;
-            for(int r = 0; r < 5; r++)
-                for(int c = 0; r < 5; r++)
-                    if(state.Board[r,c] == player) count++;
+            for (int r = 0; r < 5; r++)
+            {
+                for (int c = 0; c < 5; c++) 
+                {
+                    if (state.Board[r, c] == player) 
+                        count++;
+                }
+            }
             return count;   
         }
 
@@ -65,6 +61,19 @@ namespace Seega.Presentation
                 GamePhase.GameOver => "Игра окончена",
                 _=>"Неизвестно"
             };
+        }
+
+        // метод для отображения правил
+        public void RenderRules()
+        {
+            Console.Clear();
+            Console.WriteLine("           Правила игры SEEGA 5x5                ");
+            Console.WriteLine("1. Игроки по очереди расставляют фишки на поле.");
+            Console.WriteLine("2. После расстановки начинается фаза перемещения.");
+            Console.WriteLine("3. Фишки ходят на 1 клетку по горизонтали или вертикали.");
+            Console.WriteLine("4. Захват фишек соперника происходит при их окружении.");
+            Console.WriteLine("\nДля возврата в меню нажмите любую клавишу...");
+            Console.ReadKey();
         }
     }
 }
