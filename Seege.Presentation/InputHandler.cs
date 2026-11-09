@@ -1,6 +1,6 @@
 //ввод координат и обработка ошибок
 using System;
-using Seege.Presentation.Contracts;
+using Seega.Contracts;
 
 namespace Seege.Presentation
 {
@@ -9,34 +9,36 @@ namespace Seege.Presentation
     /// </summary>
     public class InputHandler
     {
-        //запрос координатов у игрока и возвращает обьект move
         /// <summary>
-        /// Запрашивает координаты клетки и проверяет, что они находятся в пределах поля.
+        /// Запрашивает координату поля. Вводится как "строка столбец" (например, "2 4")
+        /// или в шахматной записи (например, "D2"). Буква Q возвращает пользователя в меню.
         /// </summary>
-        /// <returns>Ход с координатами, отсчитанными от нуля.</returns>
-        public Move GetMoveFromUser()
+        /// <param name="prompt">Текст запроса координаты.</param>
+        /// <returns>Координата или null, если пользователь решил выйти из игры.</returns>
+        public BoardCoordinate? GetCoordinateFromUser(string prompt)
         {
             while (true)
             {
-                Console.WriteLine("Введите координаты столбца");
-                string input = Console.ReadLine();
+                Console.Write($"{prompt} (или Q для возврата в меню): ");
+                string? input = Console.ReadLine();
 
-                if (string.IsNullOrWhiteSpace(input)) continue;
-                
-                //разбитие ввода по пробелам
-                string[] parts = input?.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (input == null || input.Trim().Equals("Q", StringComparison.OrdinalIgnoreCase))
+                    return null;
 
-                if (parts?.Length == 2)
+                string[] parts = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length == 2
+                    && int.TryParse(parts[0], out int row)
+                    && int.TryParse(parts[1], out int col)
+                    && row >= 1 && row <= 5
+                    && col >= 1 && col <= 5)
                 {
-                    bool isRowValid = int.TryParse(parts[0], out int row);
-                    bool isColValid = int.TryParse(parts[1], out int col);
-
-                    if (isRowValid && isColValid && row >= 1 && row <= 5 && col >= 1 && col <= 5)
-                    {
-                        return new Move { ToRow = row - 1, ToCol = col - 1};
-                    }
+                    return new BoardCoordinate(row - 1, col - 1);
                 }
-                Console.WriteLine("Ошибка. Нужно вводить числа через пробел '2 4' ");
+
+                if (BoardCoordinate.TryParse(input, out BoardCoordinate coordinate))
+                    return coordinate;
+
+                Console.WriteLine("Ошибка. Введите, например, '2 4' или 'D2'.");
             }
         }
 
@@ -48,13 +50,13 @@ namespace Seege.Presentation
         {
             Console.Clear();
             Console.Write("Введите имя первого игрока: ");
-            string p1 = Console.ReadLine();
+            string p1 = Console.ReadLine()?.Trim() ?? string.Empty;
 
             Console.Write("Введите имя второго игрока: ");
-            string p2 = Console.ReadLine();
+            string p2 = Console.ReadLine()?.Trim() ?? string.Empty;
 
-            if ( string.IsNullOrWhiteSpace(p1)) p1 = "Игрок 1 ";
-            if ( string.IsNullOrWhiteSpace(p2)) p2 = "Игрок 2 ";
+            if (string.IsNullOrWhiteSpace(p1)) p1 = "Игрок 1";
+            if (string.IsNullOrWhiteSpace(p2)) p2 = "Игрок 2";
 
             return(p1, p2);
 

@@ -1,4 +1,5 @@
-using Seege.Presentation.Contracts;
+using Seega.Contracts;
+using Seega.Business;
 using System;
 
 namespace Seege.Presentation
@@ -25,7 +26,7 @@ namespace Seege.Presentation
                 switch (action)
                 {
                     case MainMenuAction.NewGame:
-                        StartMockGame(renderer, inputHandler);
+                        StartGame(renderer, inputHandler);
                         break;
                     
                     case MainMenuAction.LoadGame:
@@ -47,34 +48,95 @@ namespace Seege.Presentation
                 }
             }
         }
-        // временная заглушка для тестов
         /// <summary>
-        /// Запускает демонстрационный сценарий с тестовым состоянием поля.
+        /// Запускает новую партию и передаёт действия игроков бизнес-логике.
         /// </summary>
         /// <param name="renderer">Отрисовщик игрового поля.</param>
-        /// <param name="inputhandler">Обработчик пользовательского ввода.</param>
-        static void StartMockGame(GameRenderer renderer, InputHandler inputhandler)
+        /// <param name="inputHandler">Обработчик пользовательского ввода.</param>
+        static void StartGame(GameRenderer renderer, InputHandler inputHandler)
         {
-            var(p1,p2) = inputhandler.GetPlayerNames(); //получение имени
-            // тестовое состояние игры
-            var state = new GameState
+            (string player1Name, string player2Name) = inputHandler.GetPlayerNames();
+            GameManager gameManager = new GameManager();
+            gameManager.StartNewGame(player1Name, player2Name);
+
+            while (true)
             {
-                CurrentPhase = GamePhase.Placement,
-                ActivePlayer = PlayerId.Player1,
-                MoveNumber = 1,
-                Player1Name = p1,
-                Player2Name = p2
-            };
+                GameState state = gameManager.GetCurrentState();
+                renderer.RenderBoard(state);
 
-            //рисуем доску
-            renderer.RenderBoard(state);
-            Console.WriteLine("Тестовый ввод координат (нажмите Enter для выхода в меню):");
-            Move testMove = inputHandler.GetMoveFromUser();
-            Console.WriteLine($"Вы ввели: строка {testMove.ToRow + 1}, столбец {testMove.ToCol + 1}");
+                if (state.Phase == GamePhase.Finished)
+                {
+                    Console.WriteLine("Нажмите любую клавишу, чтобы вернуться в меню.");
+                    Console.ReadKey();
+                    return;
+                }
 
-            Console.WriteLine("Выход");
-            Console.ReadKey();
+                MoveResult result;
+                if (state.Phase == GamePhase.Placement)
+                {
+                    BoardCoordinate? target = inputHandler.GetCoordinateFromUser("Куда поставить фишку");
+                    if (!target.HasValue)
+                        return;
 
+                    result = gameManager.PlacePiece(target.Value);
+                }
+                else
+                {
+                    BoardCoordinate from;
+                    if (state.ComboPiecePosition.HasValue)
+                    {
+                        from = state.ComboPiecePosition.Value;
+                        Console.WriteLine($"Серия захватов: продолжайте фишкой с клетки {from}.");
+                        Console.WriteLine("Нажмите P, чтобы завершить серию, или любую другую клавишу для продолжения.");
+
+                        if (Console.ReadKey(true).Key == ConsoleKey.P)
+                        {
+                            result = gameManager.PassTurn();
+                        }
+                        else
+                        {
+                            BoardCoordinate? comboDestination = inputHandler.GetCoordinateFromUser("Куда переместить фишку");
+                            if (!comboDestination.HasValue)
+                                return;
+
+                            result = gameManager.MakeMove(from, comboDestination.Value);
+                        }
+                    }
+                    else
+                    {
+                        BoardCoordinate? selectedFrom = inputHandler.GetCoordinateFromUser("Откуда переместить фишку");
+                        if (!selectedFrom.HasValue)
+                            return;
+
+                        BoardCoordinate? to = inputHandler.GetCoordinateFromUser("Куда переместить фишку");
+                        if (!to.HasValue)
+                            return;
+
+                        result = gameManager.MakeMove(selectedFrom.Value, to.Value);
+                    }
+                }
+
+                if (!result.IsSuccess)
+                {
+                    renderer.RenderMoveError(result.ErrorReason);
+                    Console.WriteLine("Нажмите любую клавишу, чтобы продолжить.");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                state = gameManager.GetCurrentState();
+                renderer.RenderBoard(state);
+                renderer.RenderMoveResult(result, state);
+                if (result.IsGameOver)
+                {
+                    Console.WriteLine("Нажмите любую клавишу, чтобы вернуться в меню.");
+                    Console.ReadKey();
+                    return;
+                }
+
+                Console.WriteLine("Нажмите любую клавишу, чтобы продолжить.");
+                Console.ReadKey();
+            }
         }
 
         /// <summary>

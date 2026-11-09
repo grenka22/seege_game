@@ -41,7 +41,7 @@ namespace Seege.Presentation
                 Console.WriteLine("                 ");
                 Console.WriteLine("Выберите пункт от 1 до 5");
 
-                string input = Console.ReadLine()?.Trim(); //.Trim убирает случайные пробелы
+                string input = Console.ReadLine()?.Trim() ?? string.Empty; //.Trim убирает случайные пробелы
 
                 switch(input)
                 {
