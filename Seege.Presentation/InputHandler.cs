@@ -4,15 +4,24 @@ using Seege.Presentation.Contracts;
 
 namespace Seege.Presentation
 {
+    /// <summary>
+    /// Считывает имена игроков и координаты из консоли.
+    /// </summary>
     public class InputHandler
     {
         //запрос координатов у игрока и возвращает обьект move
+        /// <summary>
+        /// Запрашивает координаты клетки и проверяет, что они находятся в пределах поля.
+        /// </summary>
+        /// <returns>Ход с координатами, отсчитанными от нуля.</returns>
         public Move GetMoveFromUser()
         {
             while (true)
             {
                 Console.WriteLine("Введите координаты столбца");
                 string input = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(input)) continue;
                 
                 //разбитие ввода по пробелам
                 string[] parts = input?.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -30,7 +39,12 @@ namespace Seege.Presentation
                 Console.WriteLine("Ошибка. Нужно вводить числа через пробел '2 4' ");
             }
         }
-        public(string p1Name, string p2Name) GetPlayerName()
+
+        /// <summary>
+        /// Запрашивает имена обоих игроков; если имя не введено, подставляет имя по умолчанию.
+        /// </summary>
+        /// <returns>Имена первого и второго игроков.</returns>
+        public(string p1Name, string p2Name) GetPlayerNames()
         {
             Console.Clear();
             Console.Write("Введите имя первого игрока: ");

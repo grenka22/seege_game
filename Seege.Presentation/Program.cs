@@ -3,8 +3,15 @@ using System;
 
 namespace Seege.Presentation
 {
+    /// <summary>
+    /// Запускает консольное приложение и обрабатывает выбор в главном меню.
+    /// </summary>
     class Program
     {
+        /// <summary>
+        /// Точка входа: показывает меню и запускает выбранный экран.
+        /// </summary>
+        /// <param name="args">Аргументы командной строки.</param>
         static void Main(string[] args)
         {
             MainMenu menu = new MainMenu();
@@ -30,16 +37,23 @@ namespace Seege.Presentation
                         break;
 
                     case MainMenuAction.Rules:
-                        ShowRules();
+                        ShowRules(renderer);
                         break;
-                    
+
                     case MainMenuAction.Exit:
                         return;
+
+
                 }
             }
         }
         // временная заглушка для тестов
-        static void StartMockGame(GameRenderer renderer, Inputhandler inputhandler)
+        /// <summary>
+        /// Запускает демонстрационный сценарий с тестовым состоянием поля.
+        /// </summary>
+        /// <param name="renderer">Отрисовщик игрового поля.</param>
+        /// <param name="inputhandler">Обработчик пользовательского ввода.</param>
+        static void StartMockGame(GameRenderer renderer, InputHandler inputhandler)
         {
             var(p1,p2) = inputhandler.GetPlayerNames(); //получение имени
             // тестовое состояние игры
@@ -52,10 +66,6 @@ namespace Seege.Presentation
                 Player2Name = p2
             };
 
-            //добавление фишек для визуала
-            state.Board[2, 2] = PlayerId.Player1;
-            state.Board[2, 0] = PlayerId.Player2;
-
             //рисуем доску
             renderer.RenderBoard(state);
             Console.WriteLine("Тестовый ввод координат (нажмите Enter для выхода в меню):");
@@ -67,19 +77,22 @@ namespace Seege.Presentation
 
         }
 
-        static void ShowRules()
+        /// <summary>
+        /// Показывает правила игры и возвращает пользователя в меню после нажатия клавиши.
+        /// </summary>
+        /// <param name="renderer">Отрисовщик текста правил.</param>
+        static void ShowRules(GameRenderer renderer) // метод принимает  gamerenderer c правилами
         {
             Console.Clear();
-            Console.WriteLine("Правила игры SEEGE");
-             Console.WriteLine("1. Игроки по очереди расставляют фишки.");
-            Console.WriteLine("2. После расстановки фишки перемещаются на 1 клетку.");
-            Console.WriteLine("3. Захват фишек соперника при окружении.");
-            Console.WriteLine("\n(Полные правила будут добавлены позже)");
-            Console.WriteLine("\nНажмите любую клавишу...");
+            renderer.RenderRules();
+            Console.WriteLine("Для возврата нажмите на любую кнопку");
             Console.ReadKey();
-        
         }
 
+        /// <summary>
+        /// Показывает временное сообщение и ждёт нажатия клавиши.
+        /// </summary>
+        /// <param name="message">Текст, который нужно показать.</param>
         static void ShowStubMessage(string message)
         {
             Console.Clear();
